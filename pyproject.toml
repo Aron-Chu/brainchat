@@ -3,6 +3,8 @@ name = "chatbrain"
 version = "0.1.0"
 description = "BrainChat: a small local model that says what Twitch chat is doing around a Moment"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "src/chatbrain/page/static/fonts/OFL-*.txt"]
 authors = [{ name = "Aron-Chu" }]
 requires-python = ">=3.12"
 dependencies = [

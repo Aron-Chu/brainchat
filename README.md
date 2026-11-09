@@ -4,7 +4,7 @@ BrainChat is a small local model that says what Twitch chat is doing around a
 StreamPulse Moment: what chat is doing, who it is aimed at, how chat feels and the
 tone, or "not sure" with a reason.
 
-It runs locally only, on 127.0.0.1. This repo ships made-up data only. No license yet; all rights reserved.
+It runs locally only, on 127.0.0.1. This repo ships made-up data only. The code is under the Apache License 2.0 (see License below).
 
 - Made-up data only: the tests and the demo build their own fake chat (channels
   `fakechanNN`, speakers `s<N>`, emote IDs `fake-<name>`). No real chat, labels,
@@ -229,3 +229,9 @@ Coding agents never open the data folder; see `AGENTS.md`.
 
 The decision log, one line per choice the spec leaves to the builder or the plan rules on, is in
 [`docs/decisions.md`](docs/decisions.md).
+
+## License
+
+- Code: [Apache License 2.0](LICENSE).
+- The Geist and Geist Mono fonts in `src/chatbrain/page/static/fonts/` keep their own SIL Open Font License 1.1 (`OFL-geist.txt`, `OFL-geist-mono.txt`).
+- No chat datasets, labels or model weights ship in this repo. If any are released later, they get their own terms.

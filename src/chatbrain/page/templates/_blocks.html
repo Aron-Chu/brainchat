@@ -1,0 +1,245 @@
+{# Shared pieces of the home page and the Moment. Whitespace matters in a few places
+   (activity line sentences, badge rows that collapse when empty), so those macros are one line. #}
+
+{% macro sentence(parts) %}{% for p in parts %}{% if p is string %}{{ p }}{% else %}<a class="tl" href="{{ moment_url(p.window_id) }}" data-open>{{ p.time }}</a>{% endif %}{% endfor %}{% endmacro %}
+
+{% macro badges(m, full=False) %}{% if m.needs_review %}<span class="bd" data-state="review">needs review</span>{% endif %}{% if full and not m.visible %}<span class="bd">text expired {{ m.win.expires|day }}</span>{% endif %}{% if m.fixed %}<span class="bd" data-state="fixed">fixed</span>{% endif %}{% endmacro %}
+
+{% macro card_answer(m, q) %}{% set s = m.answers[q] %}{% if s.sure %}<span>{{ CARD_LABEL[q] }} {% for v in s.values %}{{ display.get(v, v) }}{% if not loop.last %}, {% endif %}{% endfor %}</span>{% else %}<span class="ns">{{ CARD_LABEL[q] }}: not sure</span>{% endif %}{% endmacro %}
+
+{# A Moment row. On the home page (Task 5) it carries the number its chip on the activity line shows,
+   and, with the stream's live activity counts, the peak people chatting near it and that peak
+   against the channel's usual pace; without live counts it keeps the posters joining. #}
+{% macro card(m, doing, max_posters, usual=none) %}
+<li class="mc" data-window="{{ m.win.window_id }}">
+<a class="mc-o" href="{{ moment_url(m.win.window_id, doing=doing) }}" data-open>
+{% if m.n %}<span class="nb {{ m.shape }}">{{ m.n }}</span>{% if m.shape == 'solid' %}<span class="sr">, cause note</span>{% elif m.shape == 'unsure' %}<span class="sr">, not sure</span>{% endif %}{% else %}<i class="dot" style="--c:{{ m.first_doing|color }}"></i>{% endif %}
+<span class="mc-m">
+<span class="mc-1"><b class="tm">{{ m.win.anchor|clock }}</b>{{ badges(m) }}<span class="ti">{{ m.title }}</span></span>
+<span class="mc-2">{{ card_answer(m, 'feeling') }} · {{ card_answer(m, 'tone') }}{% if m.win.counts.get('spread') %} · <span>{{ display.get(m.win.counts['spread'], m.win.counts['spread']) }}</span>{% endif %}</span>
+</span>
+{% if m.peak is not none %}<span class="act-pk"><b>{{ m.peak }}</b> people{% if usual %} · {{ (m.peak / usual)|ratio }}{% endif %}</span>
+{% elif m.peak_why == 'unknown' %}<span class="act-pk">coverage unknown</span>
+{% elif not m.peak_known %}<span class="act-pk">not recorded</span>
+{% else %}<span class="mc-n"><span><b>{{ m.win.count('joining_posters') }}</b> {{ 'poster' if m.win.count('joining_posters') == 1 else 'posters' }} joining</span><span class="bar"><i style="--v:{{ (m.win.count('joining_posters') / max_posters)|pct }}"></i></span></span>
+{% endif %}
+</a>
+</li>
+{% endmacro %}
+
+{# F1 (Task 5): a Moment's face as a text chip, the emote's name as chat typed it (no picture in
+   this milestone, G-13). The chip is hidden from the reader, who gets the whole sentence from
+   ``fc_sr``; inside it, the desk note says the same on hover (``edge`` hangs a lane note inward).
+   The name is chat's own text: autoescaped, never in a style, class or URL. #}
+{% macro fc_note(name, rest, edge='') %}<span class="fc-note{% if edge %} fc-{{ edge }}{% endif %}" aria-hidden="true"><b>{{ name }}</b>{{ rest }}</span>{% endmacro %}
+{% macro fc_chip(m) %}<span class="fc-chip" aria-hidden="true">{{ m.face.name }}{{ fc_note(m.face.name, m.face_rest) }}</span>{% endmacro %}
+{% macro fc_sr(m) %}<span class="fc-sr">. {{ m.face_sentence }}.</span>{% endmacro %}
+
+{# A glance card (Task 3, G1): the Moment's number (solid when Doing is sure, a ring when not) and
+   time, its face chip (F1), the "your label" tag when Doing is the owner's own label, the title (whole,
+   it wraps), the stat (none with the counts off) and one line of chat (the desk only; it is the one
+   ellipsis); the face sentence ends its accessible name. #}
+{% macro gl_card(c) %}
+{% set m = c.m %}
+<li class="gl-card" data-window="{{ m.win.window_id }}" data-n="{{ m.n }}">
+<a class="gl-co" href="{{ moment_url(m.win.window_id) }}" data-open>
+<span class="gl-ctop"><span class="gl-num{% if not c.sure %} gl-ns{% endif %}">{{ m.n }}</span><span class="gl-time">{{ m.win.anchor|clock }}</span>{% if m.face_shown %}{{ fc_chip(m) }}{% endif %}{% if c.yours %}<span class="gl-tag gl-you">your label</span>{% endif %}</span>
+<span class="gl-say">{{ m.title }}</span>
+{% if c.stat %}<span class="gl-size">{% if c.stat.word %}{{ c.stat.word }}{% else %}<b>{{ c.stat.peak }}</b> people in 10 s{% if c.stat.ratio %} · <b>{{ c.stat.ratio }}</b> usual pace{% endif %}{% endif %}</span>
+{% endif %}
+{% if c.quote.speaker is defined %}<span class="gl-chat"><span class="gl-spk">{{ c.quote.speaker }}</span><span class="gl-tx">{{ c.quote.text }}</span></span>
+{% elif c.quote.expired is defined %}<span class="gl-chat gl-exp"><span class="gl-tx">Chat text expired {{ c.quote.expired }}</span></span>
+{% else %}<span class="gl-chat gl-exp"><span class="gl-tx">No chat in this window.</span></span>
+{% endif %}
+{% if m.face_shown %}{{ fc_sr(m) }}
+{% endif %}
+</a>
+</li>
+{% endmacro %}
+
+{% macro line(l) %}<li class="ln{% if l.tag %} ev{% endif %}"><code>{{ l.off }}</code><span class="spk">{{ l.msg.speaker }}</span><span class="tx">{{ l.msg.text }}</span>{% if l.tag %}<span class="et">{{ l.tag }}</span>{% endif %}</li>{% endmacro %}
+
+{% macro rows(m, q) %}
+{% set s = m.answers[q] %}
+{% if s.sure %}
+{% for v in s.values %}
+<div class="vr"><span class="vn">{% if q == 'doing' %}<i class="dot" style="--c:{{ v|color }}"></i>{% endif %}{{ display.get(v, v) }}</span>{% if s.kind == 'model' and s.confidence is not none %}<span class="cv">{{ s.confidence|conf }}</span><span class="conf" style="--p:{{ s.confidence|pct }};--t:{{ (s.threshold or 0)|pct }}"><i></i></span>{% endif %}</div>
+{% endfor %}
+{% elif s.kind == 'label' %}
+<div class="vr ns"><span class="vn">not sure{% if s.not_sure %} · {{ s.not_sure|join(', ') }}{% endif %}</span></div>
+{% else %}
+<div class="vr ns"><span class="vn">not sure</span><span class="cv">{{ s.not_sure|join(', ') }}</span>{% if 'under_threshold' in s.reasons and s.confidence is not none and s.threshold is not none %}<span class="conf" data-unsure style="--p:{{ s.confidence|pct }};--t:{{ s.threshold|pct }}"><i></i></span>{% endif %}</div>
+{% endif %}
+{% endmacro %}
+
+{% macro evidence(m, q) %}
+{% set s = m.answers[q] %}
+{% if s.sure %}
+{% if not m.visible %}
+<span class="evt">text expired</span>
+{% elif not m.chat %}
+<span class="evt">no chat</span>
+{% elif m.evidence.get(q) %}
+<details class="evd"><summary class="evt">{{ plural(m.evidence[q]|length, 'line') }} ▸</summary>
+<ul class="evl">{% for l in m.evidence[q] %}<li><code>{{ l.off }}</code> <span class="spk">{{ l.msg.speaker }}</span> {{ l.msg.text }}</li>{% endfor %}</ul>
+</details>
+{% else %}
+<span class="evt">no lines</span>
+{% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro fix_menu(m, q, choices, reasons, multi) %}
+{% set s = m.answers[q] %}
+{% set action = moment_url(m.win.window_id) ~ '/fix' %}
+<details class="fx">
+<summary class="fixb" aria-label="Fix {{ QUESTION_LABEL[q] }}">Fix ▾</summary>
+<div class="menu">
+<p class="mh">Fix · {{ QUESTION_LABEL[q] }}</p>
+<form method="post" action="{{ action }}">
+<input type="hidden" name="question" value="{{ q }}">
+{% if q in multi %}
+{% for c in choices %}
+<label class="mi"><input type="checkbox" name="value" value="{{ c.value }}"{% if c.current %} checked{% endif %}>{{ c.label }}{% if c.model %}<span class="mo">{{ c.model }}</span>{% endif %}</label>
+{% endfor %}
+<button class="sv" type="submit">Save</button>
+{% else %}
+{% for c in choices %}
+<button class="mi" type="submit" name="value" value="{{ c.value }}" aria-pressed="{{ 'true' if c.current else 'false' }}"><span class="mck">{% if c.current %}✓{% endif %}</span>{{ c.label }}{% if c.model %}<span class="mo">{{ c.model }}</span>{% endif %}</button>
+{% endfor %}
+{% endif %}
+</form>
+<details class="nsd">
+<summary class="nsl">Not sure ▸</summary>
+<form method="post" action="{{ action }}">
+<input type="hidden" name="question" value="{{ q }}">
+<div class="nsr">
+{% for r, label in reasons %}
+<label><input type="checkbox" name="not_sure" value="{{ r }}"{% if s.kind == 'label' and r in s.reasons %} checked{% endif %}>{{ label }}</label>
+{% endfor %}
+<button class="sv" type="submit">Save not sure</button>
+</div>
+</form>
+</details>
+<p class="mf">Saves your label. It goes into the next training run.</p>
+</div>
+</details>
+{% endmacro %}
+
+{% macro chat_lines(m) %}
+{% if not m.visible %}
+<p class="exp">Chat text expired {{ m.win.expires|day }}. Labels and counts remain.</p>
+{% elif not m.lines %}
+<p class="exp">No chat in this window.</p>
+{% else %}
+<ol class="cl">
+{% for it in m.lines %}
+{% if it.fold is defined %}
+<li class="fl"><details><summary class="fold">Show {{ it.fold|length }} more · {{ it.first }} to {{ it.last }}</summary><ol class="cl">{% for l in it.fold %}{{ line(l) }}{% endfor %}</ol></details></li>
+{% else %}
+{{ line(it) }}
+{% endif %}
+{% endfor %}
+</ol>
+{% endif %}
+{% endmacro %}
+
+{# Answer blocks (Task 10b): one macro per block kind ask/answer.py returns. A Moment card has at
+   most two actions, Open and Fix; here it has Open (Fix sits in the Moment it opens). #}
+
+{% macro cards(b) %}
+<ol class="mcs">
+{% for m in b.moments %}
+{{ card(m, none, b.max_posters) }}
+{% endfor %}
+</ol>
+{% endmacro %}
+
+{% macro bars(b) %}
+<ol class="bars">
+{% for r in b.rows %}
+<li>{% if r.window_id %}<a class="tl" href="{{ moment_url(r.window_id) }}" data-open>{{ r.label }}</a>{% else %}<span class="bl">{{ r.label }}</span>{% endif %}<svg class="bs" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect class="bt" width="100" height="8" rx="2"></rect><rect class="bf" width="{{ '%.1f'|format([r.v * 100, 1]|max) }}" height="8" rx="2"></rect></svg><span class="mu">{{ r.text }}{% if r.maybe %} · {{ r.maybe }} not sure{% endif %}</span></li>
+{% endfor %}
+</ol>
+{% endmacro %}
+
+{% macro mixrows(rows, unit) %}
+<ul class="mix">
+{% for r in rows %}
+<li><span class="vn">{% if r.color %}<i class="dot" style="--c:{{ r.color }}"></i>{% endif %}{{ r.label }}</span><span class="bar"><i style="--v:{{ r.v|pct }}"></i></span><span class="mu">{{ r.k }} of {{ r.n }}{{ unit }}{% if r.maybe %} · {{ r.maybe }} not sure{% endif %}</span></li>
+{% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro count(b) %}{{ mixrows(b.rows, '') }}{% endmacro %}
+
+{% macro mix(b) %}
+{% for g, rows in b.groups %}
+<p class="mxh">{{ g }}</p>
+{{ mixrows(rows, ' windows') }}
+{% endfor %}
+<p class="sm mu">A window can show more than one thing, so these don't add up to {{ b.n }}.</p>
+{% endmacro %}
+
+{% macro moment(b) %}
+<ol class="mcs">
+{{ card(b.m, none, b.m.win.count('joining_posters') or 1) }}
+</ol>
+<dl class="cnt">
+{% for r in b.counted %}
+<div><dt>{{ r.label }}</dt><dd>{% if r.bar is defined %}<span class="bar"><i style="--v:{{ r.bar|pct }}"></i></span>{% endif %}<span>{{ r.text }}</span></dd></div>
+{% endfor %}
+</dl>
+<div class="aqs">
+{% for q in b.questions %}
+<div class="aq">
+<div class="aqh"><span class="qn">{{ QUESTION_LABEL[q] }}</span><span class="src">{{ b.m.answers[q].source }}</span></div>
+{{ rows(b.m, q) }}
+{{ evidence(b.m, q) }}
+</div>
+{% endfor %}
+</div>
+{% if b.m.cause %}
+<p class="cz"><b>{{ b.m.cause.note }}</b><span class="bd">{{ display.get(b.m.cause.source, b.m.cause.source) }} note</span></p>
+{% else %}
+<p class="cz mu">Cause unknown · no cause note</p>
+{% endif %}
+<details class="cld"><summary class="fold">Chat lines</summary>
+{{ chat_lines(b.m) }}
+</details>
+{% endmacro %}
+
+{% macro evidence_block(b) %}
+<ol class="mcs">
+{{ card(b.m, none, b.m.win.count('joining_posters') or 1) }}
+</ol>
+<div class="aqs">
+{% for q in b.questions %}
+<div class="aq">
+<div class="aqh"><span class="qn">{{ QUESTION_LABEL[q] }}</span><span class="src">{{ b.m.answers[q].source }}</span></div>
+{{ rows(b.m, q) }}
+{{ evidence(b.m, q) }}
+</div>
+{% endfor %}
+</div>
+{% endmacro %}
+
+{# A notice: a plain sentence and at most one runnable chip, either Open a Moment or a query the
+   page posts like a follow-up (a refusal's nearest thing it can do). #}
+{% macro notice(b, ask_id) %}
+{% if b.text %}<p class="exp">{{ b.text }}</p>{% endif %}
+{% if b.open %}<a class="chip rch" href="{{ moment_url(b.open.win.window_id) }}" data-open>Open {{ b.open.win.anchor|clock }} · {{ plural(b.open.win.count('joining_posters'), 'poster') }} joining</a>
+{% elif b.run %}{% set label, toks = b.run %}<form class="rcf" method="post" action="/ask/{{ ask_id }}/edit">{% for t in toks %}<input type="hidden" name="tok" value="{{ t }}">{% endfor %}<button class="chip rch" type="submit">{{ label }}</button></form>
+{% endif %}
+{% endmacro %}
+
+{% macro block(b, ask_id) %}
+{% if b.kind == 'cards' %}{{ cards(b) }}
+{% elif b.kind == 'bars' %}{{ bars(b) }}
+{% elif b.kind == 'count' %}{{ count(b) }}
+{% elif b.kind == 'mix' %}{{ mix(b) }}
+{% elif b.kind == 'moment' %}{{ moment(b) }}
+{% elif b.kind == 'evidence' %}{{ evidence_block(b) }}
+{% elif b.kind == 'notice' %}{{ notice(b, ask_id) }}
+{% endif %}
+{% endmacro %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ m.title }} · BrainChat{% endblock %}
+{% block body %}
+<main class="main" id="main" tabindex="-1">
+<div class="col mv">
+<article class="card pv" aria-label="Moment">
+{% include "_moment_panel.html" %}
+</article>
+</div>
+</main>
+{% endblock %}

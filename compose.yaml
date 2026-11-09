@@ -1,0 +1,31 @@
+# Label Studio for BrainChat, on this PC only.
+#
+#   set CHATBRAIN_DATA first (the data folder), then from this folder:
+#   docker compose up -d
+#
+# It listens on 127.0.0.1:14610 only, never on every address. Its database and files
+# live in <CHATBRAIN_DATA>/labelstudio, so they are inside the data folder that expiry
+# manages: `chatbrain expire` deletes tasks through the API and compacts this database
+# with `docker compose exec chatbrain-ls python -c ...` (lstudio/client.py).
+#
+# Telemetry is off: usage analytics, the version check and Sentry error reports
+# (Label Studio 1.23 defaults both Sentry DSNs to Heartex's Sentry; empty turns them off).
+name: chatbrain
+
+services:
+  chatbrain-ls:
+    image: heartexlabs/label-studio:1.23.2
+    ports:
+      - "127.0.0.1:14610:8080"
+    volumes:
+      - "${CHATBRAIN_DATA:?set CHATBRAIN_DATA to the data folder}/labelstudio:/label-studio/data"
+    environment:
+      LABEL_STUDIO_COLLECT_ANALYTICS: "false"
+      COLLECT_ANALYTICS: "false"
+      LABEL_STUDIO_LATEST_VERSION_CHECK: "false"
+      LATEST_VERSION_CHECK: "false"
+      LABEL_STUDIO_SENTRY_DSN: ""
+      SENTRY_DSN: ""
+      LABEL_STUDIO_FRONTEND_SENTRY_DSN: ""
+      FRONTEND_SENTRY_DSN: ""
+    restart: "no"

@@ -1,0 +1,111 @@
+{# Asking (Task 10b): one answer block per ask, in the anatomy order of DESIGN-BRIEF §4:
+   the echoed question, the folded step line, the template line, the "Looked for" chips, the
+   blocks and two follow-ups. Forms post tokens, never the question.
+   The local model (Task 10c): a waiting ask carries data-model and data-stop; the page script
+   shows its [data-wait] parts, posts the step and swaps in the block the server sends back.
+   Without the script the keyword answer simply stays. #}
+{% from "_blocks.html" import block %}
+
+{% macro suggest(list, thread_id=none) %}
+<div class="sgg">
+{% for s in list %}
+<form class="sgf" method="post" action="/ask"><input type="hidden" name="q" value="{{ s }}">{% if thread_id %}<input type="hidden" name="thread_id" value="{{ thread_id }}">{% endif %}<button class="sg" type="submit" title="{{ s }}"><span>{{ s }}</span></button></form>
+{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro chips(x) %}
+{% set a = x.answer %}
+<form class="lf" method="post" action="/ask/{{ x.id }}/edit">
+<span class="lfl">Looked for</span>
+{% for t in x.tokens %}<input type="hidden" name="tok" value="{{ t }}">{% endfor %}
+{% for c in a.chips %}
+{% if c.kind == 'filter' %}
+<span class="chip">{{ c.text }}{% if c.kept %}<em>kept</em>{% endif %}{% if not c.token.startswith(('time:', 'sort:')) %}<button class="x" type="submit" name="drop" value="{{ c.token }}" aria-label="Remove {{ c.text }}">×</button>{% endif %}</span>
+{% else %}
+<span class="chip st"><s>{{ c.text }}</s></span>
+{% endif %}
+{% endfor %}
+{% if x.refined %}<span class="bd" data-state="model">refined by the local model</span>{% endif %}
+{% if x.addable %}
+<select class="cha" name="add" aria-label="Add a filter"><option value="">add…</option>{% for g, opts in x.addable %}<optgroup label="{{ g }}">{% for tok, text in opts %}<option value="{{ tok }}">{{ text }}</option>{% endfor %}</optgroup>{% endfor %}</select><button class="chip add" type="submit" aria-label="Add the filter">+</button>
+{% endif %}
+</form>
+{% endmacro %}
+
+{# F3 (Task 6): one row per step that really ran (G-9), its icon by state: done, skipped (never
+   ran, the name struck through) or failed. The step still running is the waiting row; the page
+   script marks it active and shows the list only past 150 ms, so a fast answer shows only the
+   settled line. #}
+{% macro step_row(s) %}<li class="sx-row" data-s="{{ s.state }}"><i class="sx-i" aria-hidden="true"></i><span class="sx-l">{{ s.text }}</span></li>{% endmacro %}
+
+{% macro article(x) %}
+{% set a = x.answer %}
+<article class="blk" id="a{{ x.id }}"{% if x.pending %} data-model="/ask/{{ x.id }}/model" data-stop="/ask/{{ x.id }}/stop" data-pending="{{ x.pending }}"{% endif %}>
+<div class="qr"><p class="q">{{ x.echo }}</p></div>
+<div class="ab">
+{% if a.steps %}
+{% if x.pending %}<ol class="stl wkl" data-wait hidden aria-label="Search steps">{% for s in a.steps %}{{ step_row(s) }}{% endfor %}<li class="wk sx-row" data-s="waiting" data-stopped="{{ x.stopped_text }}"><i class="sx-i" aria-hidden="true"></i>{{ x.waiting }} <span data-secs>0</span> s<button class="stop" type="button">Stop</button></li></ol>{% endif %}
+<details class="stp"{% if x.pending %} data-done{% endif %}><summary>✓ {{ a.step_text }}</summary><ol class="stl sx-ol" aria-label="Search steps">{% for s in a.steps %}{{ step_row(s) }}{% endfor %}</ol></details>
+{% endif %}
+<p class="ans{% if x.refused or (a.query.intent == 'cant_answer' and a.query.reason != 'on_stream') %} ref{% endif %}">{{ a.line|join(' ') }}</p>
+{% if a.more %}<p class="ans mu">{{ a.more }}</p>{% endif %}
+{% if x.refused %}<p class="sv0 sm mu">Your words weren't saved.</p>{% endif %}
+{% if a.chips %}{{ chips(x) }}{% endif %}
+{% if x.slow %}<p class="slow" data-wait hidden>{{ x.slow }}</p>{% endif %}
+{% for b in a.blocks %}
+{{ block(b, x.id) }}
+{% endfor %}
+{{ caption(x) }}
+{% if a.suggestions %}{{ suggest(a.suggestions, x.thread_id) }}{% endif %}
+{% if a.follow_ups %}
+<div class="fus">
+{% for label, toks in a.follow_ups %}
+<form class="fuf" method="post" action="/ask/{{ x.id }}/edit">{% for t in toks %}<input type="hidden" name="tok" value="{{ t }}">{% endfor %}<button class="fu" type="submit">{{ label }}</button></form>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+</article>
+{% endmacro %}
+
+{# The caption slot (Task 10c): the local narrator's checked caption with its citations, the
+   skeleton while step 2 waits, or one muted line saying why there is none. #}
+{% macro caption(x) %}
+{% if x.caption %}
+<div class="cap"><span class="bd" data-state="model">local narrator</span><p>{% for p in x.caption %}{% if p is string %}{{ p }}{% else %}<a class="cite" href="{{ moment_url(p[1]) }}" data-open>[{{ p[0] }}]</a>{% endif %}{% endfor %}</p></div>
+{% elif x.skeleton %}
+<div class="cap" data-wait hidden><span class="bd" data-state="model">local narrator</span><span class="skl" role="img" aria-label="Caption still writing"><i></i><i></i></span></div>
+{% elif x.no_caption %}
+<p class="sm mu">{{ x.no_caption }}</p>
+{% endif %}
+{% endmacro %}
+
+{# ``model`` is ``ask.model.dock``: the amber banner only when asking falls back to keywords.
+   F3 (Task 6, G-8): one ask line with its "/" key (desk); on focus "Try one" opens as a popover
+   above it with the first three suggestions and "Asked before"; the banner and the footer stay.
+   The list follows the form in the DOM so Tab reaches it after Ask. In a thread a suggestion
+   continues the thread, as a typed question does; "New question" is the way to start a new one. #}
+{% macro dock(thread_id, suggestions, model, history) %}
+<div class="dock">
+{% if model.banner %}<div class="ban" role="status"><b>{{ model.head }}</b> <span>{{ model.body }}{% if model.fix %} {{ model.fix[0] }}{% if model.fix[1] %}<code>{{ model.fix[1] }}</code>{% endif %}{{ model.fix[2] }}{% endif %}</span></div>{% endif %}
+{% if model.slow %}<p class="slow">{{ model.slow }}</p>{% endif %}
+{% if thread_id %}<p class="nqr"><a class="nq" href="/">New question</a><span class="mu">Starts a new thread; this one stays under Asked before.</span></p>{% endif %}
+<div class="sx-al"><form class="ask" method="post" action="/ask" data-ask>{% if thread_id %}<input type="hidden" name="thread_id" value="{{ thread_id }}">{% endif %}<textarea name="q" rows="1" maxlength="{{ QUESTION_MAX }}" placeholder="Ask about this stream" aria-label="Ask about chat" required></textarea><kbd class="sx-k" aria-hidden="true">/</kbd><button class="btn" data-variant="primary" type="submit">Ask <kbd>↵</kbd></button></form>
+<div class="sug"><p class="sm mu">Try one</p>{{ suggest(suggestions[:3], thread_id) }}{{ hist(history, thread_id, fold=true) }}</div></div>
+<p class="loc">Runs on this PC. Numbers come from stored labels and counts.</p>
+</div>
+{% endmacro %}
+
+{# The "Asked before" list. The home page shows it folded (a disclosure inside the dock's "Try one"
+   list, F3 Task 6) at every width (Task 3, G-8); fold=false keeps the plain list. #}
+{% macro hist(history, thread_id, fold=false) %}
+{% if history %}
+{% if fold %}<details class="hsd"><summary class="fold">Asked before · {{ history|length }}</summary>{% endif %}
+<nav class="hist" aria-label="Asked before">
+{% if not fold %}<p class="ht">Asked before</p>{% endif %}
+<ol>{% for t, first in history %}<li><a href="/?thread={{ t }}"{% if t == thread_id %} aria-current="page"{% endif %}>{{ first }}</a></li>{% endfor %}</ol>
+</nav>
+{% if fold %}</details>{% endif %}
+{% endif %}
+{% endmacro %}

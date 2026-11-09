@@ -1,0 +1,4 @@
+{
+  "note": "Emote IDs whose reading is contested (docs/LABELING_GUIDE.md, ## Contested emotes). A window that uses one shows every answer as not sure, needs review, on the Moment page. Exact emote IDs only, never names; empty until the owner lists one.",
+  "ids": []
+}

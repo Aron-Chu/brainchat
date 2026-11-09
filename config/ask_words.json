@@ -1,0 +1,100 @@
+{
+  "format": "chatbrain-ask-words/1",
+  "note": "Words and phrases the keyword parser maps to query tokens when no local model runs (ask/keywords.py). Lowercase, apostrophes dropped. Every scheme value needs at least 5 entries.",
+  "values": {
+    "doing": {
+      "laughing": ["laugh", "laughs", "laughed", "laughing", "laughter", "funny", "funniest", "funnier", "lol", "lmao", "lmfao", "rofl", "haha", "hahaha", "hilarious", "joke", "jokes", "joking", "comedy", "cracked up", "giggle", "giggling", "kekw", "lul", "omegalul", "4head", "icant", "made chat laugh"],
+      "cheering": ["cheer", "cheers", "cheered", "cheering", "hype", "hyped", "hyping", "pog", "poggers", "pogchamp", "gg", "lets go", "celebrate", "celebrated", "celebrating", "celebration", "clutch", "excited", "excitement", "clap", "clapping", "ez", "dub"],
+      "shocked": ["shock", "shocked", "shocking", "surprise", "surprised", "surprising", "wow", "omg", "no way", "wtf", "jumpscare", "jump scare", "stunned", "speechless", "unexpected", "oh no", "jaw drop", "wutface", "monkaw", "gasp"],
+      "tense": ["tense", "tension", "nervous", "nerves", "anxious", "anxiety", "stress", "stressed", "stressful", "intense", "nail biting", "nailbiter", "on edge", "close call", "monkas", "sweaty", "scared", "scary"],
+      "sad": ["sad", "sadness", "sadge", "cry", "crying", "cried", "tears", "rip", "pepehands", "biblethump", "depressing", "heartbreaking", "heartbroken", "upset", "sorrow", "grief", "feels bad", "notlikethis"],
+      "asking": ["ask", "asks", "asked", "asking", "question", "questions", "wondering", "curious", "confused", "how do", "q and a", "qna", "help", "asking about"],
+      "advising": ["advice", "advise", "advising", "backseat", "backseats", "backseating", "backseater", "tips", "tip", "suggest", "suggesting", "suggestions", "coaching", "instructions", "telling the streamer", "telling them what to do", "go left"],
+      "complaining": ["complain", "complains", "complained", "complaining", "complaint", "complaints", "whine", "whining", "annoyed", "annoying", "angry", "mad", "salty", "rant", "ranting", "fed up", "boring", "bored", "residentsleeper", "dansgame"],
+      "chatting_as_usual": ["as usual", "normal", "calm", "chill", "small talk", "hanging out", "nothing special", "regular", "just chatting", "idle", "heyguys", "greetings", "chatting"],
+      "other": ["other", "something else", "misc", "miscellaneous", "random", "weird", "odd", "dancing", "vibing", "catjam"]
+    },
+    "aimed": {
+      "streamer": ["streamer", "the streamer", "streamers", "host", "broadcaster", "caster", "creator", "me", "at me", "on me", "streamers side"],
+      "game_content": ["game", "games", "gameplay", "the game", "level", "levels", "map", "match", "round", "content", "speedrun", "puzzle", "quest", "character", "video", "movie", "playing"],
+      "guest": ["guest", "guests", "the guest", "my guest", "cohost", "co host", "collab", "collaborator", "friend", "duo", "partner", "visitor", "interview"],
+      "chat_itself": ["chat itself", "each other", "themselves", "other chatters", "at chat", "in joke", "inside joke", "the community", "community", "chat vs chat"],
+      "tech_problem": ["lag", "laggy", "lagging", "audio", "sound", "mic", "microphone", "froze", "frozen", "freeze", "freezing", "buffering", "buffer", "crash", "crashed", "crashing", "glitch", "glitches", "bug", "bugs", "technical", "tech", "tech problem", "tech issue", "technical difficulties", "cant hear", "no sound", "dropped frames", "pixelated", "connection", "disconnect", "disconnected", "internet"],
+      "unclear": ["unclear", "unclear aim", "no target", "nobody in particular", "at nothing", "no one in particular", "not aimed at anyone"]
+    },
+    "feels": {
+      "supportive": ["supportive", "support", "supporting", "supported", "positive", "nice", "kind", "love", "loved", "loves", "like", "liked", "likes", "wholesome", "happy", "encouraging", "on the side", "on his side", "on her side", "fans", "approve", "approved", "appreciate", "enjoyed", "enjoy", "what did chat like"],
+      "critical": ["critical", "criticism", "criticize", "criticized", "criticizing", "negative", "meaner", "meanest", "hate", "hated", "hating", "haters", "flame", "flamed", "flaming", "roast", "roasted", "roasting", "dunk", "dunking", "dunked", "turn on", "turned on", "against", "dislike", "disliked", "didnt like", "rude", "harsh", "insult", "insults", "trash talk"],
+      "mixed": ["mixed", "divided", "split", "mixed feelings", "both ways", "conflicted", "polarized", "polarised", "on the fence", "torn", "some liked"],
+      "neutral": ["neutral", "indifferent", "meh", "flat", "didnt care", "impartial", "unbothered", "no feeling", "no opinion", "shrug"]
+    },
+    "tone": {
+      "playful": ["playful", "banter", "bantering", "teasing", "tease", "teased", "silly", "goofy", "for fun", "in fun", "lighthearted", "light hearted", "fun", "messing around", "memes", "meme", "trolling"],
+      "serious": ["serious", "seriously", "sincere", "earnest", "genuine", "genuinely", "for real", "real", "no joke", "honest", "solemn", "grave"],
+      "sarcastic": ["sarcastic", "sarcasm", "sarcastically", "ironic", "irony", "ironically", "mocking", "mock", "mocked", "fake hype", "sardonic", "kappa", "tongue in cheek"],
+      "hostile": ["hostile", "hostility", "heated", "toxic", "toxicity", "aggressive", "abusive", "nasty", "vicious", "harassment", "harassing", "fight", "fighting", "argument", "arguing", "flame war", "attacking", "got ugly", "ugly"],
+      "no_clear_tone": ["no clear tone", "no tone", "toneless", "hard to tell the tone", "unclear tone", "flat tone", "no particular tone"]
+    },
+    "spread": {
+      "repeated_emotes": ["repeated emotes", "emote spam", "spam", "spamming", "spammed", "spams", "emote wall", "same emote", "emote only"],
+      "chant": ["chant", "chants", "chanting", "chanted", "same line", "same thing", "copypasta", "repeating", "repeated line", "in unison", "all saying", "everyone saying", "spamming the same thing", "spam the same thing"],
+      "back_and_forth": ["back and forth", "replies", "replying", "reply", "conversation", "conversations", "debate", "debating", "discussion", "discussing", "talking to each other", "thread"],
+      "separate_messages": ["separate messages", "separate", "different things", "all over the place", "scattered", "everyone talking", "lots of different messages"],
+      "few_posters": ["few posters", "few people", "only a few", "handful", "dead chat", "dead", "quiet", "small", "barely anyone"]
+    }
+  },
+  "is": {
+    "not_sure": ["not sure", "least sure", "unsure", "uncertain", "doubt", "doubtful", "least confident", "low confidence", "isnt sure", "less sure", "most unsure", "not certain"],
+    "needs_review": ["needs review", "need review", "needing review", "flagged", "flag", "flags", "review", "contested", "to review", "review list"],
+    "labeled": ["labeled", "labelled", "my labels", "my label", "i labeled", "i fixed", "fixed", "fix", "corrected", "disagrees", "disagree", "disagreement"],
+    "has_cause": ["cause note", "cause notes", "with a cause", "has a cause", "noted", "with notes"],
+    "has_text": ["has text", "text still", "still has text", "lose their text", "text left", "text kept", "with text", "chat text"]
+  },
+  "time": {
+    "last_stream": ["last stream", "last night", "tonight", "this stream", "the stream", "last broadcast", "last time", "latest stream", "previous stream", "stream", "yesterday"],
+    "24h": ["today", "24 hours", "24h", "past day", "last day", "this morning", "this evening"],
+    "7d": ["this week", "past week", "last week", "7 days", "seven days", "few days", "recently", "lately", "week", "last 7 days"],
+    "14d": ["two weeks", "2 weeks", "14 days", "fortnight", "this month", "past month", "last month", "month", "this sprint", "sprint"],
+    "all": ["ever", "all time", "always", "everything", "all streams", "overall", "in general", "usually", "usual", "normally", "all of it", "always this"]
+  },
+  "sort": {
+    "posters": ["posters", "people", "ppl", "chatters", "most people", "different people", "posters joining", "users", "in on"],
+    "lines": ["lines", "messages", "most messages", "most lines", "loudest", "spammiest"],
+    "rate": ["fastest", "rate", "per minute", "busiest", "speed", "quickest"],
+    "newest": ["newest", "latest", "most recent", "recent", "last ones"],
+    "oldest": ["oldest", "earliest", "in order", "chronological", "first to last", "what did i miss", "export", "lose their text"],
+    "least_sure": ["least sure", "least confident", "most unsure"]
+  },
+  "intent": {
+    "top_moments": ["biggest", "best", "top", "most", "greatest", "highlights", "highlight", "peak", "peaks", "funniest", "craziest", "wildest", "ranked", "rank", "ranking", "look at first", "worst", "largest", "most critical"],
+    "find_moments": ["every", "all the", "list", "show", "show me", "which", "when", "where", "moments", "moment", "ones", "anything", "what did i miss", "export", "find", "windows"],
+    "count": ["how many", "how much", "count", "number of", "vs", "versus", "compared", "compare", "comparison", "how did", "how was", "feel about", "felt about", "percent", "percentage", "breakdown", "than usual", "side", "streamers side", "did chat like", "does chat like", "does chat even like", "did chat even like", "do they like", "did they like", "or nah"],
+    "trend": ["over time", "more often", "less often", "as often", "than before", "trend", "trends", "trending", "getting", "per day", "each day", "day by day", "daily", "more and more", "changing", "changed", "increasing", "decreasing", "week by week", "always this"],
+    "emote_meaning": ["mean", "means", "meaning", "stand for", "stands for", "used for"],
+    "explain_answer": ["explain", "explain that", "explain this", "why does it", "why did it", "why is it", "does it think", "did it think", "it think", "how sure", "how confident", "confidence", "evidence", "any good", "how good", "accuracy", "accurate", "agreement", "consistent", "f1", "precision", "recall", "score"],
+    "moment_detail": ["what happened", "what was chat doing", "what were they", "what was going on", "tell me about", "details", "detail", "this moment", "this one", "that one", "the big one", "in on the big one"]
+  },
+  "about": {
+    "doing": ["doing", "reaction", "react", "reacted", "reactions"],
+    "aimed_at": ["aimed", "aimed at", "target", "directed at"],
+    "feeling": ["feel", "feels", "feeling", "feelings", "felt", "mood", "sentiment", "streamers side", "feel about", "felt about", "did chat like", "does chat like", "does chat even like", "did chat even like", "do they like", "did they like", "or nah"],
+    "tone": ["tone", "tones"]
+  },
+  "by": {
+    "channel": ["vs", "versus", "per channel", "each channel", "by channel", "channels"],
+    "stream": ["per stream", "each stream", "by stream", "stream by stream"],
+    "day": ["per day", "each day", "daily", "day by day", "by day"],
+    "period": ["than usual", "than normal", "compared to usual"],
+    "value": ["breakdown", "each kind", "by kind"]
+  },
+  "vague": ["good", "bad", "ok", "okay", "vibe", "vibes", "recap", "summary", "overview", "how was it", "how did it go"],
+  "refine": ["only", "now", "same for", "those", "these", "instead", "just the"],
+  "result_ref": ["explain that", "explain this", "that one", "this one", "that moment", "this moment", "was that", "is that"],
+  "emote_context": ["mean", "means", "meaning", "spam", "spammed", "spamming", "emote", "emotes", "used", "use", "using", "stand for", "stands for", "posted", "post"],
+  "why": ["why", "what caused", "cause", "caused", "reason", "because", "how come"],
+  "on_stream": ["boss", "boss fight", "sponsor", "sponsored", "sponsors", "ad", "ads", "advert", "raid", "raided", "hate raid", "timeout", "timeouts", "timed out", "banned", "ban", "bans", "donation", "donations", "donated", "subs", "gifted", "died to", "death", "streamer actually", "the streamer actually", "viewers", "viewer", "viewer count", "watching", "lurkers", "audience", "go off", "went off", "good short", "clip worthy"],
+  "viewers": ["viewers", "viewer", "viewer count", "watching", "lurkers", "audience"],
+  "account": ["account", "accounts", "alt", "alts", "alt account", "username", "usernames", "user name", "real name", "profile", "ip address", "dox", "doxx", "where do they live", "how old", "same guy", "same person", "same user", "same people", "same chatter"],
+  "traits": ["racist", "racism", "sexist", "sexism", "homophobic", "homophobia", "transphobic", "transphobia", "slur", "slurs", "n word", "religion", "religious", "muslim", "jewish", "christian", "ethnicity", "gender", "sexuality", "gay", "lesbian", "disabled", "disability", "nationality", "immigrant", "black people", "white people", "asian people", "pregnant", "age of"],
+  "stop": ["a", "an", "the", "what", "whats", "was", "were", "is", "isnt", "are", "be", "been", "being", "did", "do", "does", "done", "chat", "chats", "in", "on", "at", "of", "to", "for", "from", "with", "w", "about", "and", "or", "it", "its", "that", "this", "there", "theres", "their", "they", "them", "i", "im", "my", "you", "your", "we", "us", "any", "some", "so", "really", "even", "actually", "get", "got", "go", "went", "make", "made", "say", "said", "saying", "says", "have", "has", "had", "if", "than", "then", "yet", "up", "out", "just", "all", "more", "much", "very", "too", "can", "could", "would", "should", "will", "here", "last", "how", "chat brain", "brainchat", "brain", "please", "pls", "tell", "me about", "give", "like", "ones", "one", "time", "times", "happen", "happened", "people", "kind", "when", "where", "who", "whom", "which", "while", "after", "before", "during", "into", "by", "per", "each", "every", "no", "not", "nah", "or nah", "lol", "u", "ur", "yo", "hey", "hi", "thing", "things", "stuff", "also", "again", "ago", "around", "timestamps", "timestamp", "parts", "part", "talking", "model", "models", "new", "old"]
+}

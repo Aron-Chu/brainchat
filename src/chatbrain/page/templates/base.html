@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="same-origin">
+<title>{% block title %}BrainChat{% endblock %}</title>
+<link rel="stylesheet" href="/static/page.css">
+<script src="/static/page.js" defer></script>
+</head>
+<body class="cb">
+<a class="skip" href="#main">Skip to content</a>
+{#- The top bar (Task 3, G1): the stream button opens the stream menu, a plain disclosure, so the
+    other streams stay reachable without the script. The menu holds the kept line, the other
+    streams by channel, the theme (System / Dark / Light; page.js presses the stored one) and the
+    keys line. With no stream the bar shows the name and the theme alone. -#}
+{% macro theme() %}<div class="gl-seg" role="group" aria-label="Theme"><button type="button" data-theme-set="system" aria-pressed="true">System</button><button type="button" data-theme-set="dark" aria-pressed="false">Dark</button><button type="button" data-theme-set="light" aria-pressed="false">Light</button></div>{% endmacro %}
+<header class="tb gl-top">
+{% if current %}
+<details class="gl-sm"><summary class="gl-sb"><span><b>{{ current.channel }}</b> · {{ current.start|day }} · {{ current.start|hm }}–{{ current.end|hm }} · {{ duration((current.end - current.start).total_seconds()) }}</span><svg class="gl-chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"></path></svg></summary>
+<div class="gl-pop" id="gl-pop">
+<p class="gl-pk">{% if current.keeps_until %}Chat text kept until {{ current.keeps_until|day }}{% else %}Chat text expired {{ current.expired_on|day }}{% endif %}</p>
+<p class="gl-ph">Other streams</p>
+<nav class="gl-pl" aria-label="Other streams">
+{% for channel, list in channels %}
+<p class="gl-pc">{{ channel }}</p>
+{% for s in list %}
+<a class="gl-ps" href="{{ url('/', stream=s.stream_id) }}"{% if s.stream_id == current.stream_id %} aria-current="page"{% endif %}><span class="gl-pt">{{ s.start|day }} · {{ s.start|hm }}–{{ s.end|hm }}</span><span class="gl-pn">{{ plural(s.moments, 'Moment') }}</span></a>
+{% endfor %}
+{% endfor %}
+</nav>
+<div class="gl-prow"><span class="gl-pth">Theme</span>{{ theme() }}</div>
+<p class="gl-keys"><kbd class="gl-kbd">/</kbd> ask · <kbd class="gl-kbd">J</kbd> <kbd class="gl-kbd">K</kbd> next, previous · <kbd class="gl-kbd">Esc</kbd> close</p>
+</div>
+</details>
+{% else %}
+<p class="gl-brand">BrainChat</p>
+{% endif %}
+{% if made_up %}<span class="bd" data-state="review">made-up labels</span>{% endif %}
+{% if not current %}<span class="gl-grow"></span>{{ theme() }}{% endif %}
+</header>
+{% block body %}{% endblock %}
+</body>
+</html>

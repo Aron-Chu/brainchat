@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_blocks.html" import gl_card, fc_note %}
+{% from "_ask.html" import article, dock %}
+{% block body %}
+<main class="main" id="main" tabindex="-1">
+<div class="col">
+{% if not current %}
+<p class="sl">No windows yet. Import an export with <code>uv run chatbrain import</code>.</p>
+{% elif not g.n %}
+<p class="gl-empty">No Moments in this stream.</p>
+{% else %}
+{#- The glance (Task 3, G1): the eyebrow and one status line, then the activity line with its
+    lane of Moments, then the busiest three (the first three when the counts are off). -#}
+<section class="gl-recap" aria-labelledby="gl-eb">
+<h1 class="gl-eyebrow" id="gl-eb">{{ g.eyebrow }}</h1>
+<p class="gl-status">{% if g.status_bold.startswith('Not sure') %}<i class="gl-gns" aria-hidden="true"></i>{% endif %}<span><b>{{ g.status_bold }}</b>{{ g.status_tail }}</span></p>
+</section>
+{% if g.line %}
+{#- The plot: the line stretches to the box (the inner svg); the hatch, the floor and the gaps sit
+    in an unscaled svg over it; the peak dots and their guides are placed in %. The figure's
+    aria-label says what the eye reads: the span, the busiest peaks and every gap. -#}
+<figure class="gl-graph">
+<figcaption class="gl-cap">Height: people chatting per 10 s</figcaption>
+<div class="gl-plot" role="img" aria-label="{{ g.plot_label }}">
+<svg class="gl-cv" viewBox="{{ g.view_x }} 0 {{ g.view_w }} {{ g.line.height }}" preserveAspectRatio="none" aria-hidden="true"><path class="gl-area" d="{{ g.line.d_area }}"></path><path class="gl-ln" d="{{ g.line.d_line }}" vector-effect="non-scaling-stroke"></path></svg>
+<svg class="gl-over" aria-hidden="true"><defs><pattern id="gl-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="gl-hb" width="6" height="6"></rect><rect class="gl-hs" width="1.2" height="6"></rect></pattern></defs>{% for x in g.gaps %}<rect class="gl-gap" x="{{ x.left }}%" y="0" width="{{ x.width }}%" height="100%" rx="3" fill="url(#gl-hatch)"><title>{{ x.title }}</title></rect>{% endfor %}<line class="gl-floor" x1="0" y1="100%" x2="100%" y2="100%"></line></svg>
+{% for x in g.gaps %}<span class="gl-gapl{% if x.edge %} gl-{{ x.edge }}{% endif %}" style="left:{{ x.mid }}%" aria-hidden="true">{{ x.title }}</span>{% endfor %}
+{% for d in g.peaks %}<i class="gl-guide" data-n="{{ d.n }}" style="left:{{ d.x }}%;top:{{ d.y }}%;--i:{{ loop.index0 }}" aria-hidden="true"></i><i class="gl-dot" data-n="{{ d.n }}" style="left:{{ d.x }}%;top:{{ d.y }}%;--i:{{ loop.index0 }}" aria-hidden="true"></i>{% endfor %}
+</div>
+<div class="gl-lane" role="group" aria-label="{{ LANE_LABEL }}">{% for k in g.lane %}<a class="{{ 'gl-c3' if k.top else 'gl-mk' }}{% if not k.sure %} gl-ns{% endif %}" href="{{ moment_url(k.window_id) }}" data-open data-n="{{ k.n }}" data-x="{{ k.x_pct }}" style="left:{{ k.x_pct }}%;--i:{{ loop.index0 }}" aria-label="{{ k.label }}">{% if k.top %}{{ k.n }}{% if k.note %}{{ fc_note(k.note[0], k.note[1], 'l' if k.x_pct < 25 else 'r' if k.x_pct > 75 else '') }}{% endif %}{% else %}<span>{{ k.n }}</span>{% endif %}</a>{% endfor %}</div>
+<div class="gl-axis" aria-hidden="true">{% for t in g.ticks %}<span{% if t.edge %} class="gl-{{ t.edge }}"{% endif %} style="left:{{ t.left }}%">{{ t.label }}</span>{% endfor %}</div>
+</figure>
+{% else %}
+<p class="gl-gone" id="gone">{{ g.gone }}</p>
+{% endif %}
+<section class="gl-t3" aria-labelledby="gl-h">
+<div class="gl-t3h"><h2 class="gl-h" id="gl-h">{{ g.heading }}</h2>{% if g.faced %}<span class="fc-cap"> · top emotes typed</span>{% endif %}<span class="gl-kept">{{ g.kept }}</span><a class="gl-all" href="{{ url('/list', stream=current.stream_id) }}" data-open>All {{ g.n }} Moments</a></div>
+<ol class="gl-cards">
+{% for c in g.cards %}
+{{ gl_card(c) }}
+{% endfor %}
+</ol>
+</section>
+{% endif %}
+</div>
+{% if current %}
+{{ dock(thread_id, suggestions, model, history) }}
+{% endif %}
+{#- The side lane (Task 4, G1): an opened Moment or the All N list; a modal sheet on a phone.
+    F3 (Task 6, G-8): ``?thread=`` opens it on the thread's answers, without the script too. -#}
+{% if current and thread %}
+<div class="pn" role="region" aria-label="Answer">
+<div class="sd-in sd-a" data-thread="{{ thread_id }}">
+<div class="sd-bar"><a class="sd-x" href="{{ url('/', stream=current.stream_id) }}" data-close aria-label="Close the answer">×</a></div>
+<div class="thr">{% for x in thread %}{{ article(x) }}{% endfor %}</div>
+</div>
+</div>
+{% else %}
+<div class="pn" role="region" aria-label="Moment" hidden></div>
+{% endif %}
+</main>
+{% endblock %}

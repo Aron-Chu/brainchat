@@ -1,0 +1,22 @@
+{#- All the stream's Moments in the side lane (Task 4, G1): busiest first (G-3) or in time order,
+    each row its number, time, title (with the "your label" tag) and stat; the counts off leave
+    time order alone, with no stat and no toggle. Task 5 (F1): when any row has a face, every row
+    gets a face cell between its number and time, and a faced row reads its sentence. -#}
+{% from "_blocks.html" import fc_chip, fc_sr %}
+<div class="sd-in">
+<div class="sd-bar">
+<a class="sd-x" href="{{ url('/', stream=stream.stream_id) }}" data-close aria-label="Close the list">×</a>
+</div>
+<h2 class="sd-lh" tabindex="-1">All {{ n }} Moments</h2>
+<p class="sd-sub">{{ 'Busiest first' if busy else 'In time order' }}</p>
+{% if counts_ok %}
+<div class="sd-ord" role="group" aria-label="Order"><a class="sd-o" href="{{ url('/list', stream=stream.stream_id, order='busy') }}" data-open{% if busy %} aria-current="true"{% endif %}>Busiest first</a><a class="sd-o" href="{{ url('/list', stream=stream.stream_id, order='time') }}" data-open{% if not busy %} aria-current="true"{% endif %}>In time order</a></div>
+{% endif %}
+<ol class="sd-rows{% if faced %} fc-rows{% endif %}">
+{% for r in rows %}
+{% set m = r.m %}
+<li class="sd-row" data-window="{{ m.win.window_id }}"><a class="sd-ro" href="{{ moment_url(m.win.window_id) }}" data-open data-n="{{ m.n }}"><span class="sd-num{% if not r.sure %} sd-ns{% endif %}">{{ m.n }}</span>{% if faced %}<span class="fc-cell">{% if m.face_shown %}{{ fc_chip(m) }}{% endif %}</span>{% endif %}<span class="sd-time">{{ m.win.anchor|clock }}</span><span class="sd-lsay">{{ m.title }}{% if r.yours %}<span class="sr"> · </span><span class="sd-tag sd-you">your label</span>{% endif %}</span>{% if r.stat %}<span class="sd-sz">{% if r.stat.word %}{{ r.stat.word }}{% else %}<b>{{ r.stat.peak }}</b> people in 10 s{% if r.stat.ratio %} · <b>{{ r.stat.ratio }}</b> usual pace{% endif %}{% endif %}</span>{% endif %}{% if m.face_shown %}{{ fc_sr(m) }}{% endif %}</a></li>
+{% endfor %}
+</ol>
+<p class="sd-foot">No preview pictures yet. Times are when chat reacted; the screen moment is usually 3–8 s earlier.</p>
+</div>

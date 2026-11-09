@@ -1,0 +1,132 @@
+{% from "_blocks.html" import fix_menu, rows, evidence, chat_lines %}
+{#- An opened Moment in the side lane (Task 4, G1): the bar (back to the list, close), the number and
+    time, the timing line, the title with its tag, the stat (or why there is none), three lines of
+    what chat said, the Fix trigger over Slice 1's four-question menu (G-5), and Details holding the
+    answers, the cause and Counted. The full page (``full``) keeps Slice 1's window meta and id, the
+    Messages per 5 s chart, the whole chat line list and the per-Moment ask (G-14); the lane drops them. -#}
+<div class="sd-in">
+<div class="sd-bar">
+{#- A Moment opened from an answer (F3, G-11) goes back to that answer, the one way back -#}
+{% if answer %}<a class="sd-back" href="{{ url('/', stream=stream.stream_id, thread=answer) }}" data-answer><span aria-hidden="true">‹</span> Answer</a>
+{% elif n_all %}<a class="sd-back" href="{{ url('/list', stream=stream.stream_id) }}" data-open><span aria-hidden="true">‹</span> All {{ n_all }}</a>{% endif %}
+{% if prev %}<a class="sd-nv" href="{{ moment_url(prev, doing=doing) }}" data-open data-prev hidden aria-label="Previous Moment">‹</a>{% endif %}
+{% if next %}<a class="sd-nv" href="{{ moment_url(next, doing=doing) }}" data-open data-next hidden aria-label="Next Moment">›</a>{% endif %}
+<a class="sd-x" href="{{ url('/', stream=stream.stream_id, doing=doing) }}" data-close aria-label="Close the Moment">×</a>
+</div>
+<header class="sd-head">
+<p class="sd-top">{% if m.n %}<span class="sd-num{% if m.first_doing is none %} sd-ns{% endif %}" data-lift>{{ m.n }}</span>{% endif %}<span class="sd-time">{{ m.win.anchor|clock }}</span></p>
+{% if m.face_shown %}<p class="fc-src"><b>{{ m.face.name }}</b>{{ m.face_rest }}</p>{% endif %}
+<p class="sd-when">When chat reacted. The screen moment is usually 3–8 s earlier.</p>
+{% if full %}<p class="pm">{{ m.win.channel }} · {{ m.win.anchor|day }} · <span class="tm">{{ m.win.anchor|clock }}</span> · window {{ offset((m.win.start - m.win.anchor).total_seconds()) }} to {{ offset((m.win.end - m.win.anchor).total_seconds()) }} · <code>{{ m.win.window_id }}</code></p>{% endif %}
+<h2 class="sd-say" tabindex="-1">{{ m.title }}{% if tag %}<span class="sr"> · </span><span class="sd-tag{% if tag == 'your label' %} sd-you{% endif %}">{{ tag }}</span>{% endif %}</h2>
+<div class="sd-slot">{% if gone %}<p class="sd-gone">{{ gone }}</p>{% elif m.peak is not none %}<div class="sd-size"><p class="sd-stat"><b>{{ m.peak }}</b> <span>people chatting in the busiest 10 s</span></p>{% if usual %}<p class="sd-stat"><b>{{ (m.peak / usual)|ratio }}</b> <span>the usual pace</span></p>{% endif %}</div>{% elif m.peak_why == 'unknown' %}<p class="sd-np">Coverage unknown at this Moment.</p>{% elif not m.peak_known %}<p class="sd-np">Chat not recorded at this Moment.</p>{% endif %}</div>
+</header>
+
+<section class="sd-chat" aria-label="What chat said">
+<div class="sd-sh"><b>What chat said</b>{% if m.visible %}<span>Chat text kept until {{ m.win.expires|day }}</span>{% endif %}</div>
+{% if not m.visible %}
+<p class="sd-exp">Chat text expired {{ m.win.expires|day }}.{% if not gone %} Labels and counts remain.{% endif %}</p>
+{% elif not three %}
+<p class="sd-exp">No chat in this window.</p>
+{% else %}
+<ol class="sd-lines" aria-labelledby="sd-k">
+{% for l in three %}
+<li class="sd-ln"><span class="sd-spk">{{ l.msg.speaker }}</span><span class="sd-tx">{{ l.msg.text }}</span></li>
+{% endfor %}
+</ol>
+<p class="sd-k" id="sd-k">{{ three|length }} of {{ of_lines }} lines</p>
+{% endif %}
+</section>
+
+{% if m.first_doing is none %}
+<p class="sd-nsl">BrainChat isn't sure here, so it makes no guess.</p>
+{% endif %}
+<details class="sd-fx">
+<summary class="sd-fixt">{{ "Know what chat did?" if m.first_doing is none else "Not right?" }} <span class="sd-lnk">Fix</span></summary>
+<div class="sd-fixm">
+{% for q in ['doing', 'aimed_at', 'feeling', 'tone'] %}
+<div class="sd-fq"><span class="sd-fql">{{ QUESTION_LABEL[q] }}</span><span class="src">{{ m.answers[q].source }}</span>{{ fix_menu(m, q, choices[q], reasons, multi) }}</div>
+{% endfor %}
+</div>
+</details>
+
+<details class="sd-more">
+<summary class="sd-ms">Details{% if not m.cause %} <span>cause unknown</span>{% endif %}<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"></path></svg></summary>
+<div class="sd-dbody">
+<section class="sd-sec">
+<h3 class="sd-h">What chat did <span>{{ m.answered }} of {{ m.answers|length }} answered</span></h3>
+<div class="aqs">
+{% for q in ['doing', 'aimed_at', 'feeling', 'tone'] %}
+<div class="aq">
+<div class="aqh"><span class="qn">{{ QUESTION_LABEL[q] }}</span><span class="src">{{ m.answers[q].source }}</span></div>
+{{ rows(m, q) }}
+{{ evidence(m, q) }}
+</div>
+{% endfor %}
+</div>
+</section>
+<section class="sd-sec">
+<h3 class="sd-h">Cause</h3>
+{% if m.cause %}
+<p class="cz"><b>{{ m.cause.note }}</b><span class="bd">{{ display.get(m.cause.source, m.cause.source) }} note</span></p>
+{% else %}
+<p class="cz mu">Cause unknown · no cause note</p>
+{% endif %}
+<details class="czd">
+<summary class="nsl">{{ 'Change cause note' if m.cause else 'Add cause note' }}</summary>
+<form class="czf" method="post" action="{{ moment_url(m.win.window_id) }}/cause">
+<label class="fl-l">Cause note<textarea name="cause_note" maxlength="{{ CAUSE_MAX }}" rows="3" required>{{ m.cause.note if m.cause else '' }}</textarea></label>
+<label class="fl-l">Source<select name="cause_source">{% for s, label in sources %}<option value="{{ s }}"{% if m.cause and m.cause.source == s %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+<button class="sv" type="submit">Save cause note</button>
+</form>
+</details>
+</section>
+<section class="sd-sec">
+<h3 class="sd-h">Counted <span>no words, counts only</span></h3>
+<dl class="cnt">
+{% for r in counted %}
+<div><dt>{{ r.label }}</dt><dd>{% if r.bar is defined %}<span class="bar"><i style="--v:{{ r.bar|pct }}"></i></span>{% endif %}<span>{{ r.text }}</span></dd></div>
+{% endfor %}
+</dl>
+{% if gone %}<p class="sd-gone">{{ gone }}</p>{% endif %}
+</section>
+</div>
+</details>
+
+{% if full %}
+<section class="sd-full">
+<h3 class="sd-h">Messages per 5 s</h3>
+{% if not m.visible %}
+<p class="exp">The chart left with the chat text on {{ m.win.expires|day }}.</p>
+{% elif not m.chart %}
+<p class="exp">No chat in this window.</p>
+{% else %}
+<div class="chart">
+<span class="ym">{{ m.chart.peak }}</span>
+<svg viewBox="0 0 {{ m.chart.width }} 46" preserveAspectRatio="none" role="img" aria-label="Messages per 5 seconds, at most {{ m.chart.peak }}">
+<line class="ax" x1="0" y1="42" x2="{{ m.chart.width }}" y2="42"></line>
+{% for b in m.chart.bars %}<rect x="{{ b.x }}" y="{{ b.y }}" width="3.8" height="{{ b.h }}"></rect>{% endfor %}
+
+<line class="an" x1="{{ m.chart.anchor }}" y1="0" x2="{{ m.chart.anchor }}" y2="42"></line>
+{% for x in m.chart.marks %}<line class="ek" x1="{{ x }}" y1="42" x2="{{ x }}" y2="46"></line>{% endfor %}
+
+</svg>
+<div class="xa">{% for t in m.chart.ticks %}<span{% if t.edge %} class="{{ t.edge }}"{% endif %} style="left:{{ t.left }}%">{{ t.label }}</span>{% endfor %}</div>
+<p class="chl"><span><i class="a"></i>anchor</span>{% if m.chart.marks %}<span><i></i>evidence line</span>{% endif %}</p>
+</div>
+{% endif %}
+</section>
+{#- the whole folded list only while there are lines: an expired or empty window already says so
+    under "What chat said", with the counts-gone variant when the counts are off -#}
+{% if m.visible and m.lines %}
+<section class="sd-full">
+<h3 class="sd-h">Chat lines <span>time from the anchor</span></h3>
+{{ chat_lines(m) }}
+</section>
+{% endif %}
+<section class="sd-ask">
+<h3 class="sd-h">Ask <span>about this Moment</span></h3>
+<form class="ask pask" method="post" action="/ask" data-ask><input type="hidden" name="window_id" value="{{ m.win.window_id }}"><textarea name="q" rows="1" maxlength="{{ QUESTION_MAX }}" placeholder="Ask about this Moment…" aria-label="Ask about this Moment" required></textarea><button class="btn" data-variant="primary" type="submit">Ask <kbd>↵</kbd></button></form>
+</section>
+{% endif %}
+</div>

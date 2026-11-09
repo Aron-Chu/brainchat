@@ -1,0 +1,144 @@
+{
+  "version": "cb_labels_2026_11_06_v1",
+  "guide_version": "cb_guide_2026_11_06_v1",
+  "questions": [
+    {
+      "key": "doing",
+      "kind": "multi",
+      "optional": false,
+      "blank_value": null,
+      "values": ["laughing", "cheering", "shocked", "tense", "sad", "asking", "advising", "complaining", "chatting_as_usual", "other"]
+    },
+    {
+      "key": "aimed_at",
+      "kind": "single",
+      "optional": false,
+      "blank_value": null,
+      "values": ["streamer", "game_content", "guest", "chat_itself", "tech_problem", "unclear"]
+    },
+    {
+      "key": "feeling",
+      "kind": "single",
+      "optional": false,
+      "blank_value": null,
+      "values": ["supportive", "critical", "mixed", "neutral"]
+    },
+    {
+      "key": "tone",
+      "kind": "single",
+      "optional": true,
+      "blank_value": "no_clear_tone",
+      "values": ["playful", "serious", "sarcastic", "hostile"]
+    }
+  ],
+  "not_sure_reasons": ["unclear", "conflicting", "cause_missing", "unknown_in_joke", "needs_review"],
+  "spread_values": ["repeated_emotes", "chant", "back_and_forth", "separate_messages", "few_posters"],
+  "cause_sources": ["clip", "game", "stream_title"],
+  "display": {
+    "doing": "What chat is doing",
+    "aimed_at": "Aimed at",
+    "feeling": "How chat feels about it",
+    "tone": "Tone",
+    "not_sure": "Not sure",
+    "spread": "How it spreads",
+    "cause": "Cause",
+
+    "laughing": "laughing",
+    "cheering": "cheering",
+    "shocked": "shocked",
+    "tense": "tense",
+    "sad": "sad",
+    "asking": "asking",
+    "advising": "advising (backseating)",
+    "complaining": "complaining",
+    "chatting_as_usual": "chatting as usual",
+    "other": "other",
+
+    "streamer": "streamer",
+    "game_content": "game/content",
+    "guest": "guest",
+    "chat_itself": "chat itself",
+    "tech_problem": "tech problem",
+    "unclear": "unclear",
+
+    "supportive": "supportive",
+    "critical": "critical",
+    "mixed": "mixed",
+    "neutral": "neutral",
+
+    "playful": "playful",
+    "serious": "serious",
+    "sarcastic": "sarcastic",
+    "hostile": "hostile",
+    "no_clear_tone": "no clear tone",
+
+    "conflicting": "conflicting",
+    "cause_missing": "cause missing",
+    "unknown_in_joke": "unknown in-joke",
+    "needs_review": "needs review",
+
+    "repeated_emotes": "repeated emotes",
+    "chant": "chant",
+    "back_and_forth": "back-and-forth",
+    "separate_messages": "separate messages",
+    "few_posters": "few posters",
+
+    "clip": "clip",
+    "game": "game",
+    "stream_title": "stream title"
+  },
+  "help": {
+    "doing": "What chat as a whole is doing in this window; pick every reaction a clear share of the lines shows (at least one).",
+    "aimed_at": "Who or what most of the reaction is about; pick one.",
+    "feeling": "How chat feels about what it is reacting to; pick one.",
+    "tone": "How chat says it; optional, and leaving it blank means no clear tone.",
+    "not_sure": "Instead of answering a question, mark it not sure with one or more reasons; a not-sure answer carries no value.",
+    "spread": "How the reaction moves through chat; counted from the window, shown to help, never labeled.",
+    "cause": "Optional note on what caused the reaction, filled only from evidence outside chat; empty by default.",
+
+    "doing.laughing": "Chat finds something funny: laughter words, laughing emotes, joke replies.",
+    "doing.cheering": "Chat celebrates or hypes a success: \"lets go\", \"gg\", clapping or hype emotes.",
+    "doing.shocked": "Chat reacts to something sudden or surprising: \"what\", \"no way\", \"omg\".",
+    "doing.tense": "Chat is on edge about what happens next: \"oh no\", \"careful\", waiting for a result.",
+    "doing.sad": "Chat shows sadness, sympathy or disappointment: \"rip\", \"nooo\", crying emotes.",
+    "doing.asking": "Chat asks questions about what is happening, the stream or the game.",
+    "doing.advising": "Chat tells the streamer what to do: tips, instructions, backseating.",
+    "doing.complaining": "Chat complains or vents frustration about the stream, the game, the tech or anything else.",
+    "doing.chatting_as_usual": "Ordinary chat with no shared reaction: greetings, side talk, unrelated lines.",
+    "doing.other": "A clear shared reaction that none of the other values describes.",
+
+    "aimed_at.streamer": "The streamer: what they did, said or decided.",
+    "aimed_at.game_content": "The game or content on screen: an event, a character, a play, a scene.",
+    "aimed_at.guest": "A guest, co-streamer or other person on stream who is not the streamer.",
+    "aimed_at.chat_itself": "Chat itself: other chatters, a running chat joke, a chant, chat's own behaviour.",
+    "aimed_at.tech_problem": "A technical problem: lag, a dropped stream, broken audio or video.",
+    "aimed_at.unclear": "No single target stands out: the lines point at different things or at nothing in particular.",
+
+    "feeling.supportive": "Chat is on the target's side: praise, encouragement, sympathy, hype.",
+    "feeling.critical": "Chat is against the target: criticism, mockery, blame, frustration.",
+    "feeling.mixed": "Chat is split: clear support and clear criticism in the same window.",
+    "feeling.neutral": "No clear stance for or against: ordinary chatter, plain questions, plain facts.",
+
+    "tone.playful": "Joking, teasing or light-hearted, even when the words sound harsh.",
+    "tone.serious": "Earnest and literal: real concern, real advice, plain statements.",
+    "tone.sarcastic": "Says the opposite of what it means, usually to mock or tease.",
+    "tone.hostile": "Aggressive or abusive toward someone, past playful teasing.",
+    "tone.no_clear_tone": "No tone stands out; a real answer, not missing data.",
+
+    "not_sure.unclear": "The lines don't let you answer: too few, too vague, or the context is off screen.",
+    "not_sure.conflicting": "The lines point to different answers and none clearly wins.",
+    "not_sure.cause_missing": "The answer depends on what happened on stream, and chat alone doesn't show it.",
+    "not_sure.unknown_in_joke": "Chat is running a joke, meme or reference you don't know.",
+    "not_sure.needs_review": "A contested reading, such as a contested emote ID, that needs a careful second look; never guess.",
+
+    "spread.repeated_emotes": "Many lines repeat the same emote.",
+    "spread.chant": "Many lines repeat the same word or phrase.",
+    "spread.back_and_forth": "Chatters reply to each other in a conversation.",
+    "spread.separate_messages": "Many posters write their own lines with no shared pattern.",
+    "spread.few_posters": "Too few distinct posters to call it a chat-wide reaction.",
+
+    "cause_source.clip": "The cause note comes from watching the clip.",
+    "cause_source.game": "The cause note comes from the game's own state or events.",
+    "cause_source.stream_title": "The cause note comes from the stream title."
+  }
+}

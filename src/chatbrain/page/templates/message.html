@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · BrainChat{% endblock %}
+{% block body %}
+<main class="main" id="main" tabindex="-1">
+<div class="col">
+<section class="card msgc" aria-label="{{ title }}">
+<h1 class="sh">{{ title }}</h1>
+<p class="msg">{{ message }}</p>
+<p class="msg"><a class="rl" href="/">Back to the latest stream</a></p>
+</section>
+</div>
+</main>
+{% endblock %}
